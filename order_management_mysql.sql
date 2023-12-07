@@ -1,24 +1,33 @@
 -- order management
 -- Q7 - Q10
--- 7
+
+-- Q7
+-- Write a query to display carton id, (len*width*height) as carton_vol and identify the optimum carton 
+-- (carton with the least volume whose volume is greater than the total volume of all items (len * width * height * product_quantity)) 
+-- for a given order whose order id is 10006, Assume all items of an order are packed into one single carton (box). (1 ROW) [NOTE: CARTON TABLE]
+
 SELECT 
-	CARTON.CARTON_ID,
-	(CARTON.LEN * CARTON.WIDTH * CARTON.HEIGHT) AS CARTON_VOL
-FROM 
-	CARTON
-WHERE 
-	(CARTON.LEN * CARTON.WIDTH * CARTON.HEIGHT) >= (
-		SELECT 
-			SUM(PRODUCT.LEN * PRODUCT.HEIGHT * PRODUCT.WIDTH * ORDER_ITEMS.PRODUCT_QUANTITY) AS PRODUCT_VOL
-		FROM 
-			ORDER_ITEMS
-		INNER JOIN PRODUCT ON PRODUCT.PRODUCT_ID = ORDER_ITEMS.PRODUCT_ID
-		WHERE ORDER_ITEMS.ORDER_ID = 10006
-	)
-ORDER BY CARTON_VOL LIMIT 1; 
+    CARTON.CARTON_ID,
+    (CARTON.LEN * CARTON.WIDTH * CARTON.HEIGHT) AS CARTON_VOL
+FROM
+    CARTON
+WHERE
+    (CARTON.LEN * CARTON.WIDTH * CARTON.HEIGHT) >= (SELECT 
+            SUM(PRODUCT.LEN * PRODUCT.HEIGHT * PRODUCT.WIDTH * ORDER_ITEMS.PRODUCT_QUANTITY) AS PRODUCT_VOL
+        FROM
+            ORDER_ITEMS
+			INNER JOIN PRODUCT ON PRODUCT.PRODUCT_ID = ORDER_ITEMS.PRODUCT_ID
+        WHERE
+            ORDER_ITEMS.ORDER_ID = 10006)
+ORDER BY CARTON_VOL
+LIMIT 1; 
 
 
--- 8
+-- Q8
+-- Write a query to display details (customer id,customer fullname,order id,product quantity) of customers 
+-- who bought more than ten (i.e. total order qty) products per shipped order. 
+-- (11 ROWS) [NOTE: TABLES TO BE USED - online_customer, order_header, order_items,]
+
 SELECT 
 	ONLINE_CUSTOMER.CUSTOMER_ID,
 	ONLINE_CUSTOMER.CUSTOMER_FNAME || ' '  || ONLINE_CUSTOMER.CUSTOMER_LNAME AS CUSTOMER_NAME,
@@ -37,12 +46,16 @@ HAVING
 	SUM(ORDER_ITEMS.PRODUCT_QUANTITY) > 10;
 
 
--- 9
+-- Q9
+-- Write a query to display the order_id, customer id and customer full name of customers along with 
+-- (product_quantity) as total quantity of products shipped for order ids > 10060. 
+-- (6 ROWS) [NOTE: TABLES TO BE USED - online_customer, order_header, order_items]
+
 SELECT 
 	ONLINE_CUSTOMER.CUSTOMER_ID,
 	ORDER_HEADER.ORDER_ID,
 	ONLINE_CUSTOMER.CUSTOMER_FNAME || ' ' || ONLINE_CUSTOMER.CUSTOMER_LNAME AS CUSTOMER_FULL_NAME,
-	SUM(ORDER_ITEMS.PRODUCT_QUANTITY)
+	SUM(ORDER_ITEMS.PRODUCT_QUANTITY) AS TOTAL_QUANTITY
 FROM
 	ONLINE_CUSTOMER
 	INNER JOIN ORDER_HEADER ON ORDER_HEADER.CUSTOMER_ID = ONLINE_CUSTOMER.CUSTOMER_ID
@@ -55,7 +68,12 @@ HAVING
 	ORDER_HEADER.ORDER_ID > 10060;
     
     
--- 10
+-- Q10
+-- Write a query to display product class description ,total quantity (sum(product_quantity),
+-- Total value (product_quantity * product price) and show which class of products have been shipped 
+-- highest(Quantity) to countries outside India other than USA? Also show the total value of those items. 
+-- (1 ROWS)[NOTE:PRODUCT TABLE,ADDRESS TABLE,ONLINE_CUSTOMER TABLE,ORDER_HEADER TABLE,ORDER_ITEMS TABLE,PRODUCT_CLASS TABLE]
+
 SELECT 
 	PRODUCT_CLASS.PRODUCT_CLASS_DESC,
 	SUM(ORDER_ITEMS.PRODUCT_QUANTITY) AS TOTAL_QUANTITY,
